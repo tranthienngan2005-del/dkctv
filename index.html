@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lịch trực CTV - Phòng CT-CTSV HUFLIT</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7f9;--card:#fff;--tx:#1b2430;--mu:#667085;--bd:#dde1e7;--pr:#0b5cab;--prt:#fff;--ok:#157347;--er:#b42318;--wn:#9a6700;--hd:#eef2f7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14181f;--card:#1d232c;--tx:#e8ecf1;--mu:#9aa5b4;--bd:#323b47;--pr:#5aa2e8;--prt:#0c1118;--ok:#4cc38a;--er:#ff8a80;--wn:#e3b341;--hd:#262e39}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14181f;--card:#1d232c;--tx:#e8ecf1;--mu:#9aa5b4;--bd:#323b47;--pr:#5aa2e8;--prt:#0c1118;--ok:#4cc38a;--er:#ff8a80;--wn:#e3b341;--hd:#262e39}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,"Segoe UI",Roboto,sans-serif}
+header{background:var(--pr);color:var(--prt);padding:12px 16px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+header b{font-size:16px}main{max-width:1100px;margin:0 auto;padding:14px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:6px 10px}
+button{cursor:pointer}button.p{background:var(--pr);color:var(--prt);border-color:var(--pr)}button.on{background:var(--pr);color:var(--prt)}button.d{color:var(--er)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:12px}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--hd)}
+.mu{color:var(--mu)}.em{color:var(--mu);font-style:italic}.ok{color:var(--ok)}.er{color:var(--er)}.wn{color:var(--wn)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.f label{display:block;font-size:13px;color:var(--mu)}.f input{width:100%}
+</style></head><body>
+<header><b>Lịch trực CTV · Phòng CT-CTSV HUFLIT · 2026-2027</b><span id="who"></span></header>
+<main id="app"><p class="mu">Đang tải…</p></main>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ====== CẤU HÌNH: dán thông tin Firebase của bạn vào đây ====== */
+const FIREBASE_CONFIG={ apiKey: "AIzaSyBItocUUdSEOOCVMk2Y5QA_jN-B5WEPiro",
+  authDomain: "diemdanh-b4eda.firebaseapp.com",
+  projectId: "diemdanh-b4eda",
+  storageBucket: "diemdanh-b4eda.firebasestorage.app",
+  messagingSenderId: "18075747230",
+  appId: "1:18075747230:web:ab866f74e7abf63689cc8f",
+  measurementId: "G-XNJYC39VRG"};
+const ADMIN_EMAIL="tranthienngan2005@gmail.com"; // Gmail của Chuyên viên (phải trùng trong firestore.rules)
+/* ============================================================== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TH=['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+const SH={S:'Sáng',C:'Chiều'},CP={SVH:'Sư Vạn Hạnh',HM:'Hóc Môn'},PRICE=100000;
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmt=s=>s?s.split('-').reverse().join('/'):'';
+const fmtDT=t=>new Date(t).toLocaleString('vi-VN',{hour12:false});
+const addD=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return iso(d)};
+const mon=s=>{const d=pd(s);return addD(s,-((d.getDay()+6)%7))};
+const dow=s=>TH[pd(s).getDay()];
+const key=(d,s,c)=>d+'_'+s+'_'+c;
+const ek=e=>(e||'').toLowerCase().trim();
+const money=n=>n.toLocaleString('vi-VN')+' đ';
+const D={approved:{},students:{},regs:{},schedule:{},config:{mode:'time',deadline:''}};
+const S={me:null,admin:false,db:null,uid:null,tab:'',week:mon(addD(iso(new Date()),7)),month:iso(new Date()).slice(0,7),rows:null,msg:''};
+const nm=u=>D.students[u]?.name||D.regs[u]?.email||u;
+
+function locked(date){const m=D.config.mode;if(m==='open')return false;if(m==='closed')return true;
+ const t=D.config.deadline;return t?new Date()>new Date(t):false}
+
+function init(){
+ firebase.initializeApp(FIREBASE_CONFIG);
+ firebase.auth().onAuthStateChanged(u=>{
+  if(!u){if(S.started)return location.reload();S.db=null;$('who').innerHTML='';
+   $('app').innerHTML='<div class="card"><h3>Đăng nhập</h3><p class="mu">Dùng tài khoản Gmail đã được Phòng CT-CTSV duyệt.</p><button class="p" onclick="login()">Đăng nhập bằng Google</button></div>';return}
+  if(!S.started){S.started=1;start(u)}});
+}
+function login(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert(e.message))}
+function start(u){
+ const db=S.db=firebase.firestore();S.uid=u.uid;S.me={id:u.uid,email:ek(u.email),name:u.displayName||''};
+ S.admin=S.me.email===ek(ADMIN_EMAIL);S.tab=S.admin?'week':'reg';
+ $('who').innerHTML=(S.admin?'Chuyên viên (Admin) · ':'Sinh viên · ')+esc(S.me.email)+' <button onclick="firebase.auth().signOut()">Thoát</button>';
+ const L=(p,f)=>db.collection(p).onSnapshot(s=>{f(s);draw()},e=>console.warn(p,e));
+ db.doc('config/main').onSnapshot(s=>{if(s.exists)D.config=s.data();draw()},e=>console.warn(e));
+ const stu=()=>{db.doc('students/'+S.uid).onSnapshot(s=>{D.students[S.uid]=s.exists?s.data():null;draw()},e=>console.warn(e));
+  db.doc('regs/'+S.uid).onSnapshot(s=>{D.regs[S.uid]=s.exists?s.data():{items:[],abs:[]};S.rows=null;draw()},e=>console.warn(e))};
+ if(S.admin){L('approved',s=>{D.approved={};s.docs.forEach(d=>D.approved[d.id]=d.data())});
+  L('schedule',s=>{D.schedule={};s.docs.forEach(d=>D.schedule[d.id]=d.data())});
+  L('students',s=>{D.students={};s.docs.forEach(d=>D.students[d.id]=d.data())});
+  L('regs',s=>{D.regs={};s.docs.forEach(d=>D.regs[d.id]=d.data())})}
+ else{db.doc('approved/'+S.me.email).onSnapshot(s=>{D.approved={};
+   if(s.exists){D.approved[S.me.email]=s.data();if(!S.sub){S.sub=1;stu();
+    L('schedule',x=>{D.schedule={};x.docs.forEach(d=>D.schedule[d.id]=d.data())})}}draw()},e=>console.warn(e))}
+ draw();
+}
+function tabs(list){return '<nav>'+list.map(([k,l])=>`<button class="${S.tab===k?'on':''}" onclick="S.tab='${k}';draw()">${l}</button>`).join('')+'</nav>'}
+function draw(){if(!S.db)return;const a=$('app');
+ if(document.activeElement&&/INPUT|SELECT/.test(document.activeElement.tagName)&&a.contains(document.activeElement)&&S._busy)return;
+ a.innerHTML=S.admin?adminView():studentView()}
+
+/* ---------- SINH VIÊN ---------- */
+function studentView(){
+ const ok=D.approved[ek(S.me.email||'')];
+ if(!ok)return `<div class="card"><b>Email ${esc(S.me.email||'')} chưa được Chuyên viên duyệt.</b><p class="mu">Vui lòng liên hệ Phòng CT-CTSV để được duyệt email trước khi đăng ký trực.</p></div>`;
+ const p=D.students[S.uid];
+ if(!p)return profileForm({});
+ return tabs([['reg','Đăng ký lịch'],['my','Lịch đã xếp & báo vắng'],['pro','Thông tin cá nhân']])+
+  (S.tab==='pro'?profileForm(p):S.tab==='my'?myView():regView());
+}
+function profileForm(p){return `<div class="card"><h3>Thông tin cá nhân (chỉ điền một lần)</h3><div class="f">
+ ${[['name','Họ và tên'],['mssv','MSSV'],['khoa','Khoa'],['sdt','Số điện thoại']].map(([k,l])=>`<div><label>${l}</label><input id="p_${k}" value="${esc(p[k]||'')}"></div>`).join('')}
+ </div><p><button class="p" onclick="saveProfile()">Lưu thông tin</button> <span class="er">${esc(S.msg)}</span></p></div>`}
+async function saveProfile(){const o={email:S.me.email||''};
+ for(const k of['name','mssv','khoa','sdt']){o[k]=$('p_'+k).value.trim();if(!o[k]){S.msg='Vui lòng điền đủ các trường.';return draw()}}
+ await S.db.doc('students/'+S.uid).set(o);S.msg='';S.tab='reg'}
+function rowsInit(){if(!S.rows)S.rows=(D.regs[S.uid]?.items||[]).map(x=>({...x}));}
+function regView(){rowsInit();const lk=D.config.mode;
+ return `<div class="card"><h3>Đăng ký lịch trực</h3>
+ <p class="mu">Chế độ khóa: ${lk==='open'?'<b class=ok>Đang mở</b>':lk==='closed'?'<b class=er>Đã khóa</b>':(D.config.deadline?'Hạn chỉnh sửa: <b>'+fmtDT(D.config.deadline)+'</b> '+(locked('')?'<b class=er>(đã hết hạn)</b>':'<b class=ok>(còn hạn)</b>'):'Chưa đặt hạn – đang mở')}</p>
+ <div class="sc"><table><tr><th>Ngày (dd/mm/yyyy)</th><th>Thứ</th><th>Buổi</th><th>Cơ sở</th><th></th></tr>
+ ${S.rows.map((r,i)=>`<tr><td><input type="date" value="${r.date||''}" onchange="S.rows[${i}].date=this.value;draw()"> <span class="mu">${fmt(r.date)}</span></td>
+ <td>${r.date?dow(r.date):'—'}</td>
+ <td><select onchange="S.rows[${i}].shift=this.value">${Object.entries(SH).map(([k,v])=>`<option value="${k}" ${r.shift===k?'selected':''}>${v}</option>`).join('')}</select></td>
+ <td><select onchange="S.rows[${i}].campus=this.value">${Object.entries(CP).map(([k,v])=>`<option value="${k}" ${r.campus===k?'selected':''}>${v}</option>`).join('')}</select></td>
+ <td><button onclick="dup(${i})">Nhân đôi</button> <button class="d" onclick="S.rows.splice(${i},1);draw()">Xóa</button></td></tr>`).join('')||'<tr><td colspan=5 class="em">Chưa có buổi nào.</td></tr>'}</table></div>
+ <p><button onclick="S.rows.push({date:'',shift:'S',campus:'SVH'});draw()">+ Thêm buổi</button> <button class="p" onclick="saveRegs()">Lưu lịch</button> <span class="${S.msg.startsWith('Đã')?'ok':'er'}">${esc(S.msg)}</span></p></div>`}
+function dup(i){S.rows.splice(i+1,0,{...S.rows[i]});draw()}
+async function saveRegs(){
+ const seen=new Set(),rows=S.rows;
+ for(const r of rows){if(!r.date){S.msg='Có dòng chưa chọn ngày.';return draw()}
+  const k=r.date+r.shift;if(seen.has(k)){S.msg='Trùng lịch: '+fmt(r.date)+' buổi '+SH[r.shift]+' đã được đăng ký.';return draw()}seen.add(k)}
+ const old=new Set((D.regs[S.uid]?.items||[]).map(r=>key(r.date,r.shift,r.campus))),nw=new Set(rows.map(r=>key(r.date,r.shift,r.campus)));
+ for(const k of[...old,...nw])if(old.has(k)!==nw.has(k)&&locked(k.split('_')[0])){S.msg='Đã quá hạn chỉnh sửa lịch ngày '+fmt(k.split('_')[0])+'.';return draw()}
+ const cur=D.regs[S.uid]||{};
+ await S.db.doc('regs/'+S.uid).set({email:S.me.email||'',items:rows.map(r=>({date:r.date,shift:r.shift,campus:r.campus})),abs:cur.abs||[]});
+ S.msg='Đã lưu lịch.';draw()}
+function mySlots(uid){const o=[];for(const[w,doc]of Object.entries(D.schedule))for(const[k,us]of Object.entries(doc.slots||{}))if(us.includes(uid)){const[d,s,c]=k.split('_');o.push({k,d,s,c})}
+ return o.sort((a,b)=>a.d.localeCompare(b.d)||a.s.localeCompare(b.s))}
+const absOf=(uid,k)=>(D.regs[uid]?.abs||[]).find(a=>a.key===k);
+const stLbl={pending:'<span class=wn>Chờ duyệt</span>',approved:'<span class=ok>Đã duyệt (nghỉ)</span>',rejected:'<span class=er>Từ chối</span>'};
+function myView(){const sl=mySlots(S.uid);
+ return `<div class="card"><h3>Lịch trực đã được xếp</h3><div class="sc"><table><tr><th>Ngày</th><th>Thứ</th><th>Buổi</th><th>Cơ sở</th><th>Báo vắng</th></tr>
+ ${sl.map(x=>{const a=absOf(S.uid,x.k);return `<tr><td>${fmt(x.d)}</td><td>${dow(x.d)}</td><td>${SH[x.s]}</td><td>${CP[x.c]}</td><td>${a?stLbl[a.status]+' <span class=mu>('+esc(a.reason)+')</span>':`<button onclick="reportAbs('${x.k}')">Báo vắng</button>`}</td></tr>`}).join('')||'<tr><td colspan=5 class="em">Chưa có lịch được xếp.</td></tr>'}</table></div></div>`}
+async function reportAbs(k){const r=prompt('Lý do vắng:');if(!r||!r.trim())return;
+ const cur=D.regs[S.uid]||{items:[],abs:[]};
+ await S.db.doc('regs/'+S.uid).set({email:S.me.email||'',items:cur.items||[],abs:[...(cur.abs||[]),{key:k,reason:r.trim(),status:'pending'}]})}
+
+/* ---------- ADMIN ---------- */
+function adminView(){
+ const pend=Object.values(D.regs).reduce((n,r)=>n+(r.abs||[]).filter(a=>a.status==='pending').length,0);
+ return tabs([['week','Xếp lịch tuần'],['abs','Báo vắng'+(pend?` (${pend})`:'')],['pay','Chấm công tháng'],['trk','Theo dõi & chi phí'],['sv','Duyệt sinh viên'],['cfg','Cài đặt']])+
+  ({week:weekView,abs:absView,pay:payView,trk:trkView,sv:svView,cfg:cfgView}[S.tab]||weekView)()}
+function weekDays(){return[0,1,2,3,4,5,6].map(i=>addD(S.week,i))}
+function regCount(k){return Object.entries(D.regs).filter(([u,r])=>(r.items||[]).some(x=>key(x.date,x.shift,x.campus)===k)).map(([u])=>u)}
+function weekView(){const sch=D.schedule[S.week]?.slots||{};
+ const rows=weekDays().filter((d,i)=>i<6||['S','C'].some(s=>Object.keys(CP).some(c=>regCount(key(d,s,c)).length)));
+ const cell=(d,s,c)=>{const k=key(d,s,c),n=regCount(k).length,as=sch[k]||[];
+  return n?`<b>${n}</b> lượt đăng ký<br>${as.length?'<span class=ok>Trực ('+as.length+'): '+as.map(u=>esc(nm(u))).join(', ')+'</span>':'<span class=mu>Chưa xếp</span>'}`:'<span class="em">Không có sinh viên đăng ký trực</span>'};
+ const uids=new Set(Object.values(sch).flat()),noReg=Object.keys(D.regs).filter(u=>!(D.regs[u].items||[]).some(x=>weekDays().includes(x.date)));
+ return `<div class="card"><div class="row"><button onclick="S.week=addD(S.week,-7);draw()">‹</button><b>Tuần ${fmt(S.week)} – ${fmt(addD(S.week,6))}</b><button onclick="S.week=addD(S.week,7);draw()">›</button>
+ <button class="p" onclick="autoAssign()">Tự động xếp (1 buổi/SV/tuần)</button><button onclick="exportSchedule()">Xuất Excel lịch trực</button></div>
+ <div class="sc"><table><tr><th>Ngày</th><th>Buổi</th>${Object.values(CP).map(v=>`<th>${v}</th>`).join('')}</tr>
+ ${rows.map(d=>['S','C'].map(s=>`<tr><td>${dow(d)} ${fmt(d)}</td><td>${SH[s]}</td>${Object.keys(CP).map(c=>`<td>${cell(d,s,c)}</td>`).join('')}</tr>`).join('')).join('')}</table></div>
+ <p class="mu">SV chưa đăng ký tuần này: ${noReg.length?noReg.map(u=>esc(nm(u))).join(', '):'không có'}</p></div>`}
+async function autoAssign(){
+ const wd=weekDays(),cnt={},slots={};
+ const st=Object.entries(D.regs).map(([u,r])=>[u,[...new Set((r.items||[]).filter(x=>wd.includes(x.date)&&!(absOf(u,key(x.date,x.shift,x.campus))?.status==='approved')).map(x=>key(x.date,x.shift,x.campus)))]]).filter(x=>x[1].length);
+ st.sort((a,b)=>a[1].length-b[1].length);
+ for(const[u,ch]of st){let best=ch[0];for(const k of ch)if((cnt[k]||0)<(cnt[best]||0))best=k;cnt[best]=(cnt[best]||0)+1;(slots[best]=slots[best]||[]).push(u)}
+ await S.db.doc('schedule/'+S.week).set({slots})}
+function save(name,aoa,wsName){const ws=XLSX.utils.aoa_to_sheet(aoa),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,wsName);XLSX.writeFile(wb,name)}
+function exportSchedule(){const sch=D.schedule[S.week]?.slots||{},m=pd(S.week);
+ const aoa=[['LỊCH TRỰC CTV PHÒNG CT-CTSV TUẦN '+fmt(S.week)+' - '+fmt(addD(S.week,6))],[],['Ngày','Thứ','Buổi','Cơ sở','STT','Họ tên','MSSV','Khoa','SĐT']];
+ for(const d of weekDays())for(const s of['S','C'])for(const c of Object.keys(CP)){const as=sch[key(d,s,c)]||[];
+  if(!as.length&&!regCount(key(d,s,c)).length){if(pd(d).getDay()!==0)aoa.push([fmt(d),dow(d),SH[s],CP[c],'','Không có sinh viên đăng ký trực']);continue}
+  as.forEach((u,i)=>{const p=D.students[u]||{};aoa.push([fmt(d),dow(d),SH[s],CP[c],i+1,p.name||'',p.mssv||'',p.khoa||'',p.sdt||''])})}
+ save('Lich_truc_CTV_tuan_'+S.week+'.xlsx',aoa,'Lịch trực')}
+function absView(){const L=[];for(const[u,r]of Object.entries(D.regs))(r.abs||[]).forEach((a,i)=>L.push({u,i,a}));
+ return `<div class="card"><h3>Duyệt báo vắng</h3><div class="sc"><table><tr><th>SV</th><th>Buổi</th><th>Lý do</th><th>Trạng thái</th><th></th></tr>
+ ${L.map(({u,i,a})=>{const[d,s,c]=a.key.split('_');return `<tr><td>${esc(nm(u))}</td><td>${fmt(d)} ${SH[s]} – ${CP[c]}</td><td>${esc(a.reason)}</td><td>${stLbl[a.status]}</td>
+ <td>${a.status==='pending'?`<button class="p" onclick="decide('${u}',${i},'approved')">Duyệt</button> <button class="d" onclick="decide('${u}',${i},'rejected')">Từ chối</button>`:''}</td></tr>`}).join('')||'<tr><td colspan=5 class="em">Chưa có báo vắng.</td></tr>'}</table></div></div>`}
+async function decide(u,i,st){const r=D.regs[u],abs=r.abs.map((a,j)=>j===i?{...a,status:st}:a);await S.db.doc('regs/'+u).update({abs})}
+function monthRecs(m){const o=[];for(const doc of Object.values(D.schedule))for(const[k,us]of Object.entries(doc.slots||{})){const[d,s,c]=k.split('_');if(d.slice(0,7)===m)us.forEach(u=>o.push({u,k,d,s,c,ab:absOf(u,k)?.status==='approved'}))}return o}
+function monthPick(){return `<div class="row"><label>Tháng:</label><input type="month" value="${S.month}" min="2026-08" max="2027-08" onchange="S.month=this.value;draw()"></div>`}
+function payData(){const R=monthRecs(S.month),cols=[...new Set(R.map(r=>r.d+'_'+r.s))].sort(),us=[...new Set(R.map(r=>r.u))];
+ return{R,cols,us,cell:(u,c)=>{const r=R.find(x=>x.u===u&&x.d+'_'+x.s===c);return r?(r.ab?'-':'x'):''}}}
+function payView(){const{cols,us,cell}=payData();
+ return `<div class="card"><h3>Bảng chấm công tháng</h3>${monthPick()}<p class="mu">x = trực đầy đủ (1 buổi); “-” = báo vắng đã được duyệt.</p>
+ <div class="sc"><table><tr><th>STT</th><th>Họ tên</th><th>MSSV</th>${cols.map(c=>{const[d,s]=c.split('_');return `<th>${d.slice(8)}/${d.slice(5,7)}<br>${SH[s]}</th>`}).join('')}<th>Tổng</th></tr>
+ ${us.map((u,i)=>`<tr><td>${i+1}</td><td>${esc(nm(u))}</td><td>${esc(D.students[u]?.mssv||'')}</td>${cols.map(c=>`<td>${cell(u,c)}</td>`).join('')}<td><b>${cols.filter(c=>cell(u,c)==='x').length}</b></td></tr>`).join('')||`<tr><td colspan=4 class="em">Tháng này chưa có lịch.</td></tr>`}</table></div>
+ <p><button class="p" onclick="exportPay()">Xuất Excel bảng chấm công</button></p></div>`}
+function exportPay(){const{cols,us,cell}=payData(),[y,m]=S.month.split('-');
+ const aoa=[['BẢNG CHẤM CÔNG CỘNG TÁC VIÊN PHÒNG CT-CTSV THÁNG '+m+'/'+y],[],['STT','Họ tên','MSSV','Khoa',...cols.map(c=>{const[d,s]=c.split('_');return d.slice(8)+'/'+d.slice(5,7)+' '+SH[s]}),'Tổng buổi']];
+ us.forEach((u,i)=>{const p=D.students[u]||{};aoa.push([i+1,p.name||'',p.mssv||'',p.khoa||'',...cols.map(c=>cell(u,c)),cols.filter(c=>cell(u,c)==='x').length])});
+ save('Cham_cong_CTV_'+S.month+'.xlsx',aoa,'Chấm công')}
+function trkView(){const all=Object.values(D.schedule).flatMap(doc=>Object.entries(doc.slots||{}).flatMap(([k,us])=>us.map(u=>({u,k,d:k.split('_')[0],ok:absOf(u,k)?.status!=='approved'}))));
+ const mo=all.filter(r=>r.d.slice(0,7)===S.month&&r.ok),us=[...new Set(all.map(r=>r.u))];
+ const byM={};all.filter(r=>r.ok).forEach(r=>byM[r.d.slice(0,7)]=(byM[r.d.slice(0,7)]||0)+1);
+ return `<div class="card"><h3>Theo dõi số buổi trực</h3>${monthPick()}<div class="sc"><table><tr><th>Họ tên</th><th>MSSV</th><th>Buổi trong tháng</th><th>Tổng từ đầu năm</th><th>Tiền tháng</th></tr>
+ ${us.map(u=>{const a=mo.filter(r=>r.u===u).length;return `<tr><td>${esc(nm(u))}</td><td>${esc(D.students[u]?.mssv||'')}</td><td>${a}</td><td>${all.filter(r=>r.u===u&&r.ok).length}</td><td>${money(a*PRICE)}</td></tr>`}).join('')||'<tr><td colspan=5 class="em">Chưa có dữ liệu.</td></tr>'}</table></div>
+ <p><b>Chi tháng ${S.month.split('-').reverse().join('/')}: ${money(mo.length*PRICE)}</b> (${mo.length} buổi × ${money(PRICE)})</p></div>
+ <div class="card"><h3>Chi phí theo tháng</h3><table><tr><th>Tháng</th><th>Số buổi</th><th>Thành tiền</th></tr>${Object.keys(byM).sort().map(m=>`<tr><td>${m.split('-').reverse().join('/')}</td><td>${byM[m]}</td><td>${money(byM[m]*PRICE)}</td></tr>`).join('')}</table></div>`}
+function svView(){const L=Object.entries(D.approved);
+ return `<div class="card"><h3>Duyệt email sinh viên</h3><div class="row"><input id="ne" type="email" placeholder="email@gmail.com" style="min-width:260px"><button class="p" onclick="addEmail()">Duyệt email</button></div>
+ <div class="sc"><table><tr><th>Email</th><th>Họ tên</th><th>MSSV</th><th>Khoa</th><th>SĐT</th><th></th></tr>
+ ${L.map(([k,v])=>{const p=Object.values(D.students).find(x=>x&&x.email&&ek(x.email)===k)||{};return `<tr><td>${esc(v.email)}</td><td>${esc(p.name||'—')}</td><td>${esc(p.mssv||'')}</td><td>${esc(p.khoa||'')}</td><td>${esc(p.sdt||'')}</td><td><button class="d" onclick="S.db.doc('approved/${k}').delete()">Gỡ</button></td></tr>`}).join('')||'<tr><td colspan=6 class="em">Chưa duyệt email nào.</td></tr>'}</table></div></div>`}
+async function addEmail(){const e=$('ne').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(e))return alert('Email không hợp lệ');await S.db.doc('approved/'+ek(e)).set({email:e})}
+function cfgView(){const m=D.config.mode;
+ return `<div class="card"><h3>Khóa chỉnh sửa lịch đăng ký của sinh viên</h3>${[['time','Theo hạn chót do Chuyên viên đặt (bên dưới)'],['open','Luôn mở (cho phép sửa mọi lúc)'],['closed','Khóa ngay (không cho sửa)']].map(([k,l])=>`<p><label><input type="radio" name="m" ${m===k?'checked':''} onchange="setMode('${k}')"> ${l}</label></p>`).join('')}<div class="row"><label>Hạn chót (ngày, giờ, phút, giây):</label><input type="datetime-local" step="1" id="dl" value="${D.config.deadline||''}"><button class="p" onclick="setDeadline()">Lưu hạn chót</button></div><p class="mu">Hiện tại: ${m==='open'?'luôn mở':m==='closed'?'đã khóa':D.config.deadline?'hạn '+fmtDT(D.config.deadline):'chưa đặt hạn (đang mở)'}. Giờ theo múi giờ của trình duyệt. Sau hạn chót, sinh viên không thêm/sửa/xóa được lịch.</p></div>`}
+async function setMode(m){await S.db.doc('config/main').set({mode:m,deadline:D.config.deadline||''})}
+async function setDeadline(){const v=$('dl').value;if(!v)return alert('Hãy chọn ngày giờ.');await S.db.doc('config/main').set({mode:'time',deadline:v})}
+init();
+</script></body></html>

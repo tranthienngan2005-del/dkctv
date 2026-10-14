@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null && request.auth.token.email_verified == true; }
+    // ĐỔI email dưới đây thành Gmail Admin (viết thường), trùng với ADMIN_EMAIL trong file HTML
+    function admin() { return signed() && request.auth.token.email.lower() == 'tranthienngan2005@gmail.com'; }
+    function approved() {
+      return signed() && exists(/databases/$(database)/documents/approved/$(request.auth.token.email.lower()));
+    }
+    match /config/{d}   { allow read: if signed(); allow write: if admin(); }
+    match /schedule/{d} { allow read: if approved() || admin(); allow write: if admin(); }
+    match /approved/{e} {
+      allow get: if signed() && e == request.auth.token.email.lower();
+      allow read, write: if admin();
+    }
+    match /students/{u} {
+      allow get, create, update: if approved() && request.auth.uid == u;
+      allow read, write: if admin();
+    }
+    match /regs/{u} {
+      allow get, create, update: if approved() && request.auth.uid == u;
+      allow read, write: if admin();
+    }
+  }
+}
