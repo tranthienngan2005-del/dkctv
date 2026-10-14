@@ -69,17 +69,17 @@ function start(u){
  const db=S.db=firebase.firestore();S.uid=u.uid;S.me={id:u.uid,email:ek(u.email),name:u.displayName||''};
  S.admin=S.me.email===ek(ADMIN_EMAIL);S.tab=S.admin?'week':'reg';
  $('who').innerHTML=(S.admin?'Chuyên viên (Admin) · ':'Sinh viên · ')+esc(S.me.email)+' <button onclick="firebase.auth().signOut()">Thoát</button>';
- const L=(p,f)=>db.collection(p).onSnapshot(s=>{f(s);draw()},e=>console.warn(p,e));
- db.doc('config/main').onSnapshot(s=>{if(s.exists)D.config=s.data();draw()},e=>console.warn(e));
- const stu=()=>{db.doc('students/'+S.uid).onSnapshot(s=>{D.students[S.uid]=s.exists?s.data():null;draw()},e=>console.warn(e));
-  db.doc('regs/'+S.uid).onSnapshot(s=>{D.regs[S.uid]=s.exists?s.data():{items:[],abs:[]};S.rows=null;draw()},e=>console.warn(e))};
+ const L=(p,f)=>db.collection(p).onSnapshot(s=>{f(s);draw()},e=>showErr(e));
+ db.doc('config/main').onSnapshot(s=>{if(s.exists)D.config=s.data();draw()},e=>showErr(e));
+ const stu=()=>{db.doc('students/'+S.uid).onSnapshot(s=>{D.students[S.uid]=s.exists?s.data():null;draw()},e=>showErr(e));
+  db.doc('regs/'+S.uid).onSnapshot(s=>{D.regs[S.uid]=s.exists?s.data():{items:[],abs:[]};S.rows=null;draw()},e=>showErr(e))};
  if(S.admin){L('approved',s=>{D.approved={};s.docs.forEach(d=>D.approved[d.id]=d.data())});
   L('schedule',s=>{D.schedule={};s.docs.forEach(d=>D.schedule[d.id]=d.data())});
   L('students',s=>{D.students={};s.docs.forEach(d=>D.students[d.id]=d.data())});
   L('regs',s=>{D.regs={};s.docs.forEach(d=>D.regs[d.id]=d.data())})}
  else{db.doc('approved/'+S.me.email).onSnapshot(s=>{D.approved={};
    if(s.exists){D.approved[S.me.email]=s.data();if(!S.sub){S.sub=1;stu();
-    L('schedule',x=>{D.schedule={};x.docs.forEach(d=>D.schedule[d.id]=d.data())})}}draw()},e=>console.warn(e))}
+    L('schedule',x=>{D.schedule={};x.docs.forEach(d=>D.schedule[d.id]=d.data())})}}draw()},e=>showErr(e))}
  draw();
 }
 function tabs(list){return '<nav>'+list.map(([k,l])=>`<button class="${S.tab===k?'on':''}" onclick="S.tab='${k}';draw()">${l}</button>`).join('')+'</nav>'}
@@ -193,7 +193,11 @@ function svView(){const L=Object.entries(D.approved);
  return `<div class="card"><h3>Duyệt email sinh viên</h3><div class="row"><input id="ne" type="email" placeholder="email@gmail.com" style="min-width:260px"><button class="p" onclick="addEmail()">Duyệt email</button></div>
  <div class="sc"><table><tr><th>Email</th><th>Họ tên</th><th>MSSV</th><th>Khoa</th><th>SĐT</th><th></th></tr>
  ${L.map(([k,v])=>{const p=Object.values(D.students).find(x=>x&&x.email&&ek(x.email)===k)||{};return `<tr><td>${esc(v.email)}</td><td>${esc(p.name||'—')}</td><td>${esc(p.mssv||'')}</td><td>${esc(p.khoa||'')}</td><td>${esc(p.sdt||'')}</td><td><button class="d" onclick="S.db.doc('approved/${k}').delete()">Gỡ</button></td></tr>`}).join('')||'<tr><td colspan=6 class="em">Chưa duyệt email nào.</td></tr>'}</table></div></div>`}
-async function addEmail(){const e=$('ne').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(e))return alert('Email không hợp lệ');await S.db.doc('approved/'+ek(e)).set({email:e})}
+async function addEmail(){const e=$('ne').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(e))return alert('Email không hợp lệ');
+ try{await S.db.doc('approved/'+ek(e)).set({email:e});$('ne').value='';alert('Đã duyệt: '+e)}catch(x){showErr(x,1)}}
+function showErr(e,force){console.warn(e);if(S.errShown&&!force)return;S.errShown=1;
+ alert('Lỗi Firebase ['+(e.code||'')+']: '+(e.message||e)+(e.code==='permission-denied'?'\n\nNguyên nhân thường gặp: chưa Publish firestore.rules, hoặc email Admin trong rules khác với email đang đăng nhập, hoặc chưa tạo Firestore Database.':''))}
+window.addEventListener('unhandledrejection',ev=>showErr(ev.reason||{message:'Lỗi không xác định'},1));
 function cfgView(){const m=D.config.mode;
  return `<div class="card"><h3>Khóa chỉnh sửa lịch đăng ký của sinh viên</h3>${[['time','Theo hạn chót do Chuyên viên đặt (bên dưới)'],['open','Luôn mở (cho phép sửa mọi lúc)'],['closed','Khóa ngay (không cho sửa)']].map(([k,l])=>`<p><label><input type="radio" name="m" ${m===k?'checked':''} onchange="setMode('${k}')"> ${l}</label></p>`).join('')}<div class="row"><label>Hạn chót (ngày, giờ, phút, giây):</label><input type="datetime-local" step="1" id="dl" value="${D.config.deadline||''}"><button class="p" onclick="setDeadline()">Lưu hạn chót</button></div><p class="mu">Hiện tại: ${m==='open'?'luôn mở':m==='closed'?'đã khóa':D.config.deadline?'hạn '+fmtDT(D.config.deadline):'chưa đặt hạn (đang mở)'}. Giờ theo múi giờ của trình duyệt. Sau hạn chót, sinh viên không thêm/sửa/xóa được lịch.</p></div>`}
 async function setMode(m){await S.db.doc('config/main').set({mode:m,deadline:D.config.deadline||''})}
