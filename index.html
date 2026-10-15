@@ -2,25 +2,43 @@
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lịch trực CTV - Phòng CT-CTSV HUFLIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7f9;--card:#fff;--tx:#1b2430;--mu:#667085;--bd:#dde1e7;--pr:#0b5cab;--prt:#fff;--ok:#157347;--er:#b42318;--wn:#9a6700;--hd:#eef2f7}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14181f;--card:#1d232c;--tx:#e8ecf1;--mu:#9aa5b4;--bd:#323b47;--pr:#5aa2e8;--prt:#0c1118;--ok:#4cc38a;--er:#ff8a80;--wn:#e3b341;--hd:#262e39}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#14181f;--card:#1d232c;--tx:#e8ecf1;--mu:#9aa5b4;--bd:#323b47;--pr:#5aa2e8;--prt:#0c1118;--ok:#4cc38a;--er:#ff8a80;--wn:#e3b341;--hd:#262e39}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,"Segoe UI",Roboto,sans-serif}
-header{background:var(--pr);color:var(--prt);padding:12px 16px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
-header b{font-size:16px}main{max-width:1100px;margin:0 auto;padding:14px}
-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:6px 10px}
-button{cursor:pointer}button.p{background:var(--pr);color:var(--prt);border-color:var(--pr)}button.on{background:var(--pr);color:var(--prt)}button.d{color:var(--er)}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:12px}
-.sc{overflow-x:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--hd)}
+/* Bảng màu: chỉnh tại đây nếu muốn khớp chính xác nhận diện HUFLIT */
+:root{--bg:#f3f6fa;--card:#fff;--tx:#1c2733;--mu:#5d6b7a;--bd:#d9e1ea;--pr:#0a3a82;--prt:#fff;--ac:#d9232d;--ok:#157347;--er:#c62828;--wn:#9a6700;--hd:#e8eef7;--bar:#06285c}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1620;--card:#182231;--tx:#e6ecf3;--mu:#9fb0c3;--bd:#2c3b50;--pr:#5b9bf0;--prt:#0b1220;--ac:#ff6b73;--ok:#4cc38a;--er:#ff8a80;--wn:#e3b341;--hd:#213047;--bar:#0a1626}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 "Be Vietnam Pro",system-ui,"Segoe UI",Roboto,sans-serif}
+.top{background:var(--bar);color:#fff;font-size:13px;padding:6px 20px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.top a{color:#fff;text-decoration:none;margin-left:16px;opacity:.9}.top a:hover{opacity:1;text-decoration:underline}
+header{background:#fff;color:#1c2733;border-bottom:3px solid var(--ac);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}.brand img{height:50px;width:auto}
+.brand b{display:block;color:#0a3a82;font-size:16px;text-transform:uppercase;letter-spacing:.2px}.brand small{color:#5d6b7a}
+#who{font-size:13px;color:#1c2733}#who button{margin-left:6px}
+.hero{background:linear-gradient(120deg,var(--pr),var(--bar));color:#fff;padding:22px 20px}
+.hero h1{margin:0;font-size:22px;text-transform:uppercase;letter-spacing:.4px}.hero p{margin:4px 0 0;opacity:.9}
+main{max-width:1150px;margin:0 auto;padding:18px 14px}
+nav{display:flex;gap:2px;flex-wrap:wrap;margin-bottom:14px;border-bottom:2px solid var(--bd)}
+nav button{border:0;background:none;border-bottom:3px solid transparent;border-radius:0;font-weight:600;color:var(--mu);padding:10px 14px;margin-bottom:-2px}
+nav button:hover{color:var(--pr)}nav button.on{color:var(--pr);border-bottom-color:var(--ac);background:none}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 12px}
+button{cursor:pointer;font-weight:500}button:hover:not(:disabled){border-color:var(--pr)}button:disabled{opacity:.5;cursor:not-allowed}
+button.p{background:var(--pr);color:var(--prt);border-color:var(--pr)}button.d{color:var(--er)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(10,58,130,.06)}
+.card h3{margin:0 0 10px;color:var(--pr);font-size:17px}.card h4{margin:14px 0 6px}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--bd);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--hd);color:var(--pr);font-weight:600}
 .mu{color:var(--mu)}.em{color:var(--mu);font-style:italic}.ok{color:var(--ok)}.er{color:var(--er)}.wn{color:var(--wn)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 .f label{display:block;font-size:13px;color:var(--mu)}.f input{width:100%}
+footer{background:var(--bar);color:#fff;padding:22px 20px;margin-top:24px;font-size:13px}
+footer div{max-width:1150px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}footer b{display:block;margin-bottom:4px}footer a{color:#fff}
 </style></head><body>
-<header><b>Lịch trực CTV · Phòng CT-CTSV HUFLIT · 2026-2027</b><span id="who"></span></header>
+<div class="top"><span>📞 (028) 38.632.052 - Line: 103, 104 &nbsp;·&nbsp; ✉ contact@huflit.edu.vn</span><span><a href="https://portal.huflit.edu.vn/" target="_blank" rel="noopener">Sinh viên</a><a href="https://huflit.edu.vn/vi/" target="_blank" rel="noopener">huflit.edu.vn</a></span></div>
+<header><a class="brand" href="https://huflit.edu.vn/vi/" target="_blank" rel="noopener"><img src="https://huflit.edu.vn/wp-content/uploads/huflit-brand/logo-huflit-vi-400.png" alt="HUFLIT" onerror="this.style.display='none'"><span><b>Phòng Chính trị – Công tác sinh viên</b><small>Trường Đại học Ngoại ngữ – Tin học TP.HCM</small></span></a><span id="who"></span></header>
+<section class="hero"><h1>Đăng ký &amp; theo dõi lịch trực cộng tác viên</h1><p>Năm học 2026 – 2027</p></section>
 <main id="app"><p class="mu">Đang tải…</p></main>
+<footer><div><span><b>HUFLIT</b>Phòng Chính trị – Công tác sinh viên<br>( (028) 38.632.052 - Line: 103, 104 -  ctctsv@huflit.edu.vn </span><span><b>Cơ sở Sư Vạn Hạnh</b>828 Sư Vạn Hạnh, Phường Hòa Hưng, TP. Hồ Chí Minh</span><span><b>Cơ sở Hóc Môn</b>806 Lê Quang Đạo, Xã Hóc Môn, TP. Hồ Chí Minh</span></div><div style="margin-top:10px;opacity:.8"><span>© 2026 HUFLIT. Bản quyền thuộc Trường Đại học Ngoại ngữ – Tin học TP. Hồ Chí Minh</span></div></footer>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -140,8 +158,8 @@ async function reportAbs(k){const r=prompt('Lý do vắng:');if(!r||!r.trim())re
 /* ---------- ADMIN ---------- */
 function adminView(){
  const pend=Object.values(D.regs).reduce((n,r)=>n+(r.abs||[]).filter(a=>a.status==='pending').length,0);
- return tabs([['week','Xếp lịch tuần'],['abs','Báo vắng'+(pend?` (${pend})`:'')],['pay','Chấm công tháng'],['trk','Theo dõi & chi phí'],['sv','Duyệt sinh viên'],['cfg','Cài đặt']])+
-  ({week:weekView,abs:absView,pay:payView,trk:trkView,sv:svView,cfg:cfgView}[S.tab]||weekView)()}
+ return tabs([['week','Xếp lịch tuần'],['abs','Báo vắng'+(pend?` (${pend})`:'')],['pay','Chấm công tháng'],['trk','Theo dõi & chi phí'],['stu','Thống kê SV'],['sv','Duyệt sinh viên'],['cfg','Cài đặt']])+
+  ({stu:stuView,week:weekView,abs:absView,pay:payView,trk:trkView,sv:svView,cfg:cfgView}[S.tab]||weekView)()}
 function weekDays(){return[0,1,2,3,4,5,6].map(i=>addD(S.week,i))}
 function regCount(k){return Object.entries(D.regs).filter(([u,r])=>(r.items||[]).some(x=>key(x.date,x.shift,x.campus)===k)).map(([u])=>u)}
 function ensureDraft(){if(S.draftWeek!==S.week||!S.dirty){const d=D.schedule[S.week]||{};S.draft={slots:JSON.parse(JSON.stringify(d.slots||{})),published:!!d.published};S.draftWeek=S.week}}
@@ -210,12 +228,46 @@ function trkView(){const all=Object.values(D.schedule).filter(x=>x.published).fl
 function svView(){const L=Object.entries(D.approved);
  return `<div class="card"><h3>Duyệt email sinh viên</h3><div class="row"><input id="ne" type="email" placeholder="email@gmail.com" style="min-width:260px"><button class="p" onclick="addEmail()">Duyệt email</button></div>
  <div class="sc"><table><tr><th>Email</th><th>Họ tên</th><th>MSSV</th><th>Khoa</th><th>SĐT</th><th></th></tr>
- ${L.map(([k,v])=>{const p=Object.values(D.students).find(x=>x&&x.email&&ek(x.email)===k)||{};return `<tr><td>${esc(v.email)}</td><td>${esc(p.name||'—')}</td><td>${esc(p.mssv||'')}</td><td>${esc(p.khoa||'')}</td><td>${esc(p.sdt||'')}</td><td><button class="d" onclick="S.db.doc('approved/${k}').delete()">Gỡ</button></td></tr>`}).join('')||'<tr><td colspan=6 class="em">Chưa duyệt email nào.</td></tr>'}</table></div></div>`}
+ ${L.map(([k,v])=>{const p=Object.values(D.students).find(x=>x&&x.email&&ek(x.email)===k)||{};return `<tr><td>${esc(v.email)}</td><td>${esc(p.name||'—')}</td><td>${esc(p.mssv||'')}</td><td>${esc(p.khoa||'')}</td><td>${esc(p.sdt||'')}</td><td><button class="d" onclick="removeStudent('${k}')">Xóa SV</button></td></tr>`}).join('')||'<tr><td colspan=6 class="em">Chưa duyệt email nào.</td></tr>'}</table></div></div>`}
 async function addEmail(){const e=$('ne').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(e))return alert('Email không hợp lệ');
  try{await S.db.doc('approved/'+ek(e)).set({email:e});$('ne').value='';alert('Đã duyệt: '+e)}catch(x){showErr(x,1)}}
 function showErr(e,force){console.warn(e);if(S.errShown&&!force)return;S.errShown=1;
  alert('Lỗi Firebase ['+(e.code||'')+']: '+(e.message||e)+(e.code==='permission-denied'?'\n\nNguyên nhân thường gặp: chưa Publish firestore.rules, hoặc email Admin trong rules khác với email đang đăng nhập, hoặc chưa tạo Firestore Database.':''))}
 window.addEventListener('unhandledrejection',ev=>showErr(ev.reason||{message:'Lỗi không xác định'},1));
+function stuStats(u){const as=[];for(const[w,doc]of Object.entries(D.schedule))for(const[k,us]of Object.entries(doc.slots||{}))if(us.includes(u))as.push({w,k,pub:!!doc.published});
+ as.sort((a,b)=>a.k.localeCompare(b.k));return{items:[...(D.regs[u]?.items||[])],abs:D.regs[u]?.abs||[],as}}
+function stuView(){const ids=[...new Set([...Object.keys(D.regs),...Object.keys(D.students)])];
+ const rows=ids.map(u=>{const t=stuStats(u),p=D.students[u]||{};return `<tr><td>${esc(nm(u))}</td><td>${esc(p.mssv||'')}</td><td>${esc(p.khoa||'')}</td><td>${t.items.length}</td><td>${t.as.filter(x=>x.pub).length}</td><td>${t.as.filter(x=>!x.pub).length}</td><td>${t.abs.filter(a=>a.status==='approved').length}</td><td><button onclick="S.sel='${u}';draw()">Chi tiết</button></td></tr>`}).join('');
+ let det='';
+ if(S.sel&&ids.includes(S.sel)){const u=S.sel,t=stuStats(u);t.items.sort((a,b)=>a.date.localeCompare(b.date));
+  det=`<div class="card"><h3>${esc(nm(u))} <span class="mu">${esc(D.students[u]?.mssv||'')}</span></h3>
+  <h4>Lịch đã đăng ký (${t.items.length})</h4><div class="sc"><table><tr><th>Ngày</th><th>Thứ</th><th>Buổi</th><th>Cơ sở</th><th>Tình trạng</th><th></th></tr>
+  ${t.items.map(r=>{const k=key(r.date,r.shift,r.campus),x=t.as.find(y=>y.k===k);return `<tr><td>${fmt(r.date)}</td><td>${dow(r.date)}</td><td>${SH[r.shift]}</td><td>${CP[r.campus]}</td><td>${x?(x.pub?'<span class=ok>Đã chốt</span>':'<span class=wn>Xếp nháp</span>'):'<span class=mu>Chưa xếp</span>'}</td><td><button class="d" onclick="deleteReg('${u}','${k}')">Xóa</button></td></tr>`}).join('')||'<tr><td colspan=6 class="em">Chưa đăng ký.</td></tr>'}</table></div>
+  <h4>Phân công trong lịch tuần (${t.as.length})</h4><div class="sc"><table><tr><th>Tuần</th><th>Ngày</th><th>Buổi</th><th>Cơ sở</th><th>Trạng thái</th><th></th></tr>
+  ${t.as.map(x=>{const[d,s2,c]=x.k.split('_'),a=t.abs.find(y=>y.key===x.k);return `<tr><td>${fmt(x.w)}</td><td>${dow(d)} ${fmt(d)}</td><td>${SH[s2]}</td><td>${CP[c]}</td><td>${x.pub?'<span class=ok>Đã chốt</span>':'<span class=wn>Nháp</span>'}${a?' · '+stLbl[a.status]:''}</td><td><button class="d" onclick="removeAssign('${u}','${x.k}')">Gỡ</button></td></tr>`}).join('')||'<tr><td colspan=6 class="em">Chưa được xếp.</td></tr>'}</table></div>
+  <p><button class="d" onclick="wipeStudent('${u}')">Xóa toàn bộ dữ liệu lịch của SV</button> <button onclick="S.sel=null;draw()">Đóng</button></p></div>`}
+ return `<div class="card"><h3>Thống kê lịch theo sinh viên</h3><div class="sc"><table><tr><th>Họ tên</th><th>MSSV</th><th>Khoa</th><th>Lượt đăng ký</th><th>Đã xếp (chốt)</th><th>Đã xếp (nháp)</th><th>Vắng đã duyệt</th><th></th></tr>${rows||'<tr><td colspan=8 class="em">Chưa có dữ liệu.</td></tr>'}</table></div>
+ <p><button onclick="cleanOrphans()">Dọn dữ liệu của tài khoản không còn tồn tại</button> <span class="mu">Dùng khi bạn đã xóa tài khoản SV trực tiếp trong Firebase Console.</span></p></div>`+det}
+function dropFromDraft(uids){if(!S.draft)return;for(const k of Object.keys(S.draft.slots)){S.draft.slots[k]=S.draft.slots[k].filter(x=>!uids.includes(x));if(!S.draft.slots[k].length)delete S.draft.slots[k]}}
+function purgeSched(uids,b,only){for(const[w,doc]of Object.entries(D.schedule)){const sl=JSON.parse(JSON.stringify(doc.slots||{}));let ch=false;
+ for(const k of Object.keys(sl)){if(only&&k!==only)continue;if(sl[k].some(x=>uids.includes(x))){sl[k]=sl[k].filter(x=>!uids.includes(x));ch=true;if(!sl[k].length)delete sl[k]}}
+ if(ch)b.set(S.db.doc('schedule/'+w),{slots:sl,published:!!doc.published})}}
+async function run(fn){try{const b=S.db.batch();fn(b);await b.commit();return true}catch(x){showErr(x,1);return false}}
+async function removeAssign(u,k){if(!confirm('Gỡ SV khỏi buổi này trong lịch tuần?'))return;await run(b=>purgeSched([u],b,k));dropFromDraft([u])}
+async function deleteReg(u,k){if(!confirm('Xóa lượt đăng ký này (và gỡ khỏi lịch tuần nếu đã được xếp)?'))return;const r=D.regs[u]||{};
+ await run(b=>{b.set(S.db.doc('regs/'+u),{email:r.email||'',items:(r.items||[]).filter(x=>key(x.date,x.shift,x.campus)!==k),abs:(r.abs||[]).filter(a=>a.key!==k)});purgeSched([u],b,k)})}
+async function wipeStudent(u){if(!confirm('Xóa TOÀN BỘ lịch đăng ký, báo vắng và phân công của SV này? (giữ lại hồ sơ cá nhân và email được duyệt)'))return;
+ if(await run(b=>{b.set(S.db.doc('regs/'+u),{email:D.regs[u]?.email||D.students[u]?.email||'',items:[],abs:[]});purgeSched([u],b)})){dropFromDraft([u]);alert('Đã xóa dữ liệu lịch của SV.')}}
+async function removeStudent(em){const uids=[...new Set([...Object.entries(D.students),...Object.entries(D.regs)].filter(([u,v])=>v&&ek(v.email)===em).map(([u])=>u))];
+ if(!confirm('Xóa sinh viên '+em+'?\nSẽ gỡ quyền truy cập, xóa hồ sơ, lịch đăng ký và phân công trong lịch tuần.'))return;
+ if(await run(b=>{b.delete(S.db.doc('approved/'+em));uids.forEach(u=>{b.delete(S.db.doc('students/'+u));b.delete(S.db.doc('regs/'+u))});purgeSched(uids,b)})){dropFromDraft(uids);if(uids.includes(S.sel))S.sel=null;alert('Đã xóa sinh viên và dữ liệu lịch liên quan.')}}
+async function cleanOrphans(){const ok=new Set(Object.keys(D.approved)),bad=new Set();
+ const good=u=>{const e=ek((D.students[u]||D.regs[u]||{}).email);return e&&ok.has(e)};
+ for(const doc of Object.values(D.schedule))for(const us of Object.values(doc.slots||{}))us.forEach(u=>{if(!good(u))bad.add(u)});
+ for(const u of new Set([...Object.keys(D.regs),...Object.keys(D.students)]))if(!good(u))bad.add(u);
+ if(!bad.size)return alert('Không có dữ liệu của tài khoản đã xóa.');
+ if(!confirm('Tìm thấy '+bad.size+' tài khoản không còn trong danh sách được duyệt. Xóa hồ sơ, đăng ký và phân công của các tài khoản này?'))return;
+ const L=[...bad];if(await run(b=>{L.forEach(u=>{if(D.students[u])b.delete(S.db.doc('students/'+u));if(D.regs[u])b.delete(S.db.doc('regs/'+u))});purgeSched(L,b)})){dropFromDraft(L);alert('Đã dọn xong.')}}
 function cfgView(){const m=D.config.mode;
  return `<div class="card"><h3>Khóa chỉnh sửa lịch đăng ký của sinh viên</h3>${[['time','Theo hạn chót do Chuyên viên đặt (bên dưới)'],['open','Luôn mở (cho phép sửa mọi lúc)'],['closed','Khóa ngay (không cho sửa)']].map(([k,l])=>`<p><label><input type="radio" name="m" ${m===k?'checked':''} onchange="setMode('${k}')"> ${l}</label></p>`).join('')}<div class="row"><label>Hạn chót (ngày, giờ, phút, giây):</label><input type="datetime-local" step="1" id="dl" value="${D.config.deadline||''}"><button class="p" onclick="setDeadline()">Lưu hạn chót</button></div><p class="mu">Hiện tại: ${m==='open'?'luôn mở':m==='closed'?'đã khóa':D.config.deadline?'hạn '+fmtDT(D.config.deadline):'chưa đặt hạn (đang mở)'}. Giờ theo múi giờ của trình duyệt. Sau hạn chót, sinh viên không thêm/sửa/xóa được lịch.</p></div>`}
 async function setMode(m){await S.db.doc('config/main').set({mode:m,deadline:D.config.deadline||''})}
