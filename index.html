@@ -34,11 +34,11 @@ th{background:var(--hd);color:var(--pr);font-weight:600}
 footer{background:var(--bar);color:#fff;padding:22px 20px;margin-top:24px;font-size:13px}
 footer div{max-width:1150px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}footer b{display:block;margin-bottom:4px}footer a{color:#fff}
 </style></head><body>
-<div class="top"><span>📞 (028) 38.632.052 - Line: 103, 104 &nbsp;·&nbsp; ✉ contact@huflit.edu.vn</span><span><a href="https://portal.huflit.edu.vn/" target="_blank" rel="noopener">Sinh viên</a><a href="https://huflit.edu.vn/vi/" target="_blank" rel="noopener">huflit.edu.vn</a></span></div>
+<div class="top"><span>📞 (028) 3862 9233 · (028) 3863 2052 &nbsp;·&nbsp; ✉ contact@huflit.edu.vn</span><span><a href="https://portal.huflit.edu.vn/" target="_blank" rel="noopener">Sinh viên</a><a href="https://huflit.edu.vn/vi/" target="_blank" rel="noopener">huflit.edu.vn</a></span></div>
 <header><a class="brand" href="https://huflit.edu.vn/vi/" target="_blank" rel="noopener"><img src="https://huflit.edu.vn/wp-content/uploads/huflit-brand/logo-huflit-vi-400.png" alt="HUFLIT" onerror="this.style.display='none'"><span><b>Phòng Chính trị – Công tác sinh viên</b><small>Trường Đại học Ngoại ngữ – Tin học TP.HCM</small></span></a><span id="who"></span></header>
 <section class="hero"><h1>Đăng ký &amp; theo dõi lịch trực cộng tác viên</h1><p>Năm học 2026 – 2027</p></section>
 <main id="app"><p class="mu">Đang tải…</p></main>
-<footer><div><span><b>HUFLIT</b>Phòng Chính trị – Công tác sinh viên<br>( (028) 38.632.052 - Line: 103, 104 -  ctctsv@huflit.edu.vn </span><span><b>Cơ sở Sư Vạn Hạnh</b>828 Sư Vạn Hạnh, Phường Hòa Hưng, TP. Hồ Chí Minh</span><span><b>Cơ sở Hóc Môn</b>806 Lê Quang Đạo, Xã Hóc Môn, TP. Hồ Chí Minh</span></div><div style="margin-top:10px;opacity:.8"><span>© 2026 HUFLIT. Bản quyền thuộc Trường Đại học Ngoại ngữ – Tin học TP. Hồ Chí Minh</span></div></footer>
+<footer><div><span><b>HUFLIT</b>Phòng Chính trị – Công tác sinh viên<br>(028) 3862 9233 · contact@huflit.edu.vn</span><span><b>Cơ sở Sư Vạn Hạnh</b>828 Sư Vạn Hạnh, Phường Hòa Hưng, TP. Hồ Chí Minh</span><span><b>Cơ sở Hóc Môn</b>806 Lê Quang Đạo, Xã Hóc Môn, TP. Hồ Chí Minh</span></div><div style="margin-top:10px;opacity:.8"><span>© 2026 HUFLIT. Bản quyền thuộc Trường Đại học Ngoại ngữ – Tin học TP. Hồ Chí Minh</span></div></footer>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -69,7 +69,7 @@ const key=(d,s,c)=>d+'_'+s+'_'+c;
 const ek=e=>(e||'').toLowerCase().trim();
 const money=n=>n.toLocaleString('vi-VN')+' đ';
 const D={approved:{},students:{},regs:{},schedule:{},config:{mode:'time',deadline:''}};
-const S={me:null,admin:false,db:null,uid:null,tab:'',week:mon(addD(iso(new Date()),7)),month:iso(new Date()).slice(0,7),rows:null,msg:''};
+const S={me:null,admin:false,db:null,uid:null,tab:'',week:mon(addD(iso(new Date()),7)),month:iso(new Date()).slice(0,7),rows:null,msg:'',open:{},campus:''};
 const nm=u=>D.students[u]?.name||D.regs[u]?.email||u;
 
 function locked(date){const m=D.config.mode;if(m==='open')return false;if(m==='closed')return true;
@@ -163,21 +163,21 @@ function adminView(){
 function weekDays(){return[0,1,2,3,4,5,6].map(i=>addD(S.week,i))}
 function regCount(k){return Object.entries(D.regs).filter(([u,r])=>(r.items||[]).some(x=>key(x.date,x.shift,x.campus)===k)).map(([u])=>u)}
 function ensureDraft(){if(S.draftWeek!==S.week||!S.dirty){const d=D.schedule[S.week]||{};S.draft={slots:JSON.parse(JSON.stringify(d.slots||{})),published:!!d.published};S.draftWeek=S.week}}
-function nav(n){if(S.dirty&&!confirm('Lịch tuần này chưa lưu. Bỏ thay đổi và chuyển tuần?'))return;S.dirty=false;S.open=null;S.week=addD(S.week,n);draw()}
+function nav(n){if(S.dirty&&!confirm('Lịch tuần này chưa lưu. Bỏ thay đổi và chuyển tuần?'))return;S.dirty=false;S.week=addD(S.week,n);draw()}
 function weekView(){ensureDraft();const sch=S.draft.slots,pub=S.draft.published;
  const rows=weekDays().filter((d,i)=>i<6||['S','C'].some(s=>Object.keys(CP).some(c=>regCount(key(d,s,c)).length||(sch[key(d,s,c)]||[]).length)));
  const cell=(d,s,c)=>{const k=key(d,s,c),rg=regCount(k),as=sch[k]||[];
   if(!rg.length&&!as.length)return '<span class="em">Không có sinh viên đăng ký trực</span>';
   let h=`<b>${rg.length}</b> lượt đăng ký · <span class=ok>Trực: ${as.length}</span>`;
-  if(as.length)h+='<br>'+as.map(u=>esc(nm(u))).join(', ');
-  h+=`<br><button onclick="S.open=S.open==='${k}'?null:'${k}';draw()">${S.open===k?'Đóng danh sách':'Xem DS / chọn SV'}</button>`;
-  if(S.open===k)h+='<div class="card" style="margin:6px 0 0">'+(rg.map(u=>{const o=Object.entries(sch).some(([kk,us])=>kk!==k&&us.includes(u)),p=D.students[u]||{};
+  if(as.length)h+='<br>'+as.map(u=>esc(nm(u))+(absOf(u,k)?.status==='approved'?' <span class=er>(vắng)</span>':'')).join(', ');
+  h+=`<br><button onclick="S.open['${k}']=!S.open['${k}'];draw()">${S.open[k]?'Đóng danh sách':'Xem DS / chọn SV'}</button>`;
+  if(S.open[k])h+='<div class="card" style="margin:6px 0 0">'+(rg.map(u=>{const o=Object.entries(sch).some(([kk,us])=>kk!==k&&us.includes(u)),p=D.students[u]||{};
    return `<label style="display:block"><input type="checkbox" ${as.includes(u)?'checked':''} ${pub?'disabled':''} onchange="toggleAs('${k}','${u}')"> ${esc(nm(u))} <span class=mu>${esc(p.mssv||'')}</span>${o?' <span class=wn>(đã xếp buổi khác)</span>':''}</label>`}).join('')||'<span class=em>Chưa có SV đăng ký</span>')+'</div>';
   return h};
  const noReg=Object.keys(D.regs).filter(u=>!(D.regs[u].items||[]).some(x=>weekDays().includes(x.date)));
  return `<div class="card"><div class="row"><button onclick="nav(-7)">‹</button><b>Tuần ${fmt(S.week)} – ${fmt(addD(S.week,6))}</b><button onclick="nav(7)">›</button>
  <button ${pub?'disabled':''} onclick="autoAssign()">Tự động xếp</button><button class="p" onclick="saveSched()">Lưu lịch${S.dirty?' *':''}</button>
- <button class="${pub?'':'p'}" onclick="lockSched()">${pub?'Mở khóa lịch':'Khóa lịch (chốt)'}</button><button onclick="exportSchedule()">Xuất Excel lịch trực</button></div>
+ <button class="${pub?'':'p'}" onclick="lockSched()">${pub?'Mở khóa lịch':'Khóa lịch (chốt)'}</button><button onclick="exportSchedule()">Xuất Excel lịch trực</button><button onclick="S.open={};draw()">Đóng tất cả DS</button></div>
  <p>${pub?'<b class=ok>🔒 Đã khóa – sinh viên đã thấy lịch phân công tuần này.</b>':'<b class=wn>Bản nháp – sinh viên chưa thấy lịch phân công.</b>'}${S.dirty?' <span class=er>Có thay đổi chưa lưu.</span>':''}</p>
  <div class="sc"><table><tr><th>Ngày</th><th>Buổi</th>${Object.values(CP).map(v=>`<th>${v}</th>`).join('')}</tr>
  ${rows.map(d=>['S','C'].map(s=>`<tr><td>${dow(d)} ${fmt(d)}</td><td>${SH[s]}</td>${Object.keys(CP).map(c=>`<td>${cell(d,s,c)}</td>`).join('')}</tr>`).join('')).join('')}</table></div>
@@ -192,7 +192,7 @@ function autoAssign(){if(S.draft.published)return;
  const st=Object.entries(D.regs).filter(([u])=>!done.has(u)).map(([u,r])=>[u,[...new Set((r.items||[]).filter(x=>wd.includes(x.date)&&!(absOf(u,key(x.date,x.shift,x.campus))?.status==='approved')).map(x=>key(x.date,x.shift,x.campus)))]]).filter(x=>x[1].length);
  st.sort((a,b)=>a[1].length-b[1].length);
  for(const[u,ch]of st){let best=ch[0];for(const k of ch)if((cnt[k]||0)<(cnt[best]||0))best=k;cnt[best]=(cnt[best]||0)+1;(slots[best]=slots[best]||[]).push(u)}
- S.dirty=true;S.open=null;draw();alert('Đã xếp thêm '+st.length+' sinh viên chưa có lịch; giữ nguyên '+done.size+' sinh viên đã được xếp. Nhớ bấm Lưu lịch.')}
+ S.dirty=true;draw();alert('Đã xếp thêm '+st.length+' sinh viên chưa có lịch; giữ nguyên '+done.size+' sinh viên đã được xếp. Nhớ bấm Lưu lịch.')}
 function save(name,aoa,wsName){const ws=XLSX.utils.aoa_to_sheet(aoa),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,wsName);XLSX.writeFile(wb,name)}
 function exportSchedule(){if(S.dirty)return alert('Hãy bấm Lưu lịch trước khi xuất.');const sch=S.draft.slots,m=pd(S.week);
  const aoa=[['LỊCH TRỰC CTV PHÒNG CT-CTSV TUẦN '+fmt(S.week)+' - '+fmt(addD(S.week,6))],[],['Ngày','Thứ','Buổi','Cơ sở','STT','Họ tên','MSSV','Khoa','SĐT']];
@@ -200,24 +200,38 @@ function exportSchedule(){if(S.dirty)return alert('Hãy bấm Lưu lịch trư�
   if(!as.length&&!regCount(key(d,s,c)).length){if(pd(d).getDay()!==0)aoa.push([fmt(d),dow(d),SH[s],CP[c],'','Không có sinh viên đăng ký trực']);continue}
   as.forEach((u,i)=>{const p=D.students[u]||{};aoa.push([fmt(d),dow(d),SH[s],CP[c],i+1,p.name||'',p.mssv||'',p.khoa||'',p.sdt||''])})}
  save('Lich_truc_CTV_tuan_'+S.week+'.xlsx',aoa,'Lịch trực')}
+function subCands(u,k){const cur=(D.schedule[mon(k.split('_')[0])]?.slots||{})[k]||[];
+ return Object.entries(D.students).filter(([x,p])=>p&&x!==u&&!cur.includes(x)&&D.approved[ek(p.email)]).map(([x,p])=>[x,p.name+(p.mssv?' – '+p.mssv:'')])}
 function absView(){const L=[];for(const[u,r]of Object.entries(D.regs))(r.abs||[]).forEach((a,i)=>L.push({u,i,a}));
- return `<div class="card"><h3>Duyệt báo vắng</h3><div class="sc"><table><tr><th>SV</th><th>Buổi</th><th>Lý do</th><th>Trạng thái</th><th></th></tr>
- ${L.map(({u,i,a})=>{const[d,s,c]=a.key.split('_');return `<tr><td>${esc(nm(u))}</td><td>${fmt(d)} ${SH[s]} – ${CP[c]}</td><td>${esc(a.reason)}</td><td>${stLbl[a.status]}</td>
- <td>${a.status==='pending'?`<button class="p" onclick="decide('${u}',${i},'approved')">Duyệt</button> <button class="d" onclick="decide('${u}',${i},'rejected')">Từ chối</button>`:''}</td></tr>`}).join('')||'<tr><td colspan=5 class="em">Chưa có báo vắng.</td></tr>'}</table></div></div>`}
-async function decide(u,i,st){const r=D.regs[u],abs=r.abs.map((a,j)=>j===i?{...a,status:st}:a);await S.db.doc('regs/'+u).update({abs})}
+ return `<div class="card"><h3>Duyệt báo vắng</h3><p class="mu">Khi duyệt vắng, bạn có thể chọn ngay một SV khác trong danh sách email đã duyệt (đã đăng nhập và điền hồ sơ) để trực thay buổi đó.</p><div class="sc"><table><tr><th>SV</th><th>Buổi</th><th>Lý do</th><th>Trạng thái</th><th>Xử lý / SV thay thế</th></tr>
+ ${L.map(({u,i,a})=>{const[d,s2,c]=a.key.split('_');
+  const act=a.sub?`<span class=ok>Thay bởi: ${esc(nm(a.sub))}</span> <button class="d" onclick="removeSub('${u}',${i})">Gỡ SV thay</button>`
+   :a.status==='rejected'?'':`<select id="sub_${u}_${i}"><option value="">— Chọn SV thay thế —</option>${subCands(u,a.key).map(([x,n])=>`<option value="${x}">${esc(n)}</option>`).join('')}</select> `+
+    (a.status==='pending'?`<button class="p" onclick="decide('${u}',${i},'approved')">Duyệt</button> <button class="p" onclick="decide('${u}',${i},'approved',true)">Duyệt + xếp SV thay</button> <button class="d" onclick="decide('${u}',${i},'rejected')">Từ chối</button>`:`<button class="p" onclick="decide('${u}',${i},'approved',true)">Xếp SV thay</button>`);
+  return `<tr><td>${esc(nm(u))}</td><td>${fmt(d)} ${SH[s2]} – ${CP[c]}</td><td>${esc(a.reason)}</td><td>${stLbl[a.status]}</td><td>${act}</td></tr>`}).join('')||'<tr><td colspan=5 class="em">Chưa có báo vắng.</td></tr>'}</table></div></div>`}
+function addToSlot(b,k,uid){const w=mon(k.split('_')[0]),doc=D.schedule[w]||{},sl=JSON.parse(JSON.stringify(doc.slots||{}));const a=sl[k]||(sl[k]=[]);if(!a.includes(uid))a.push(uid);
+ b.set(S.db.doc('schedule/'+w),{slots:sl,published:!!doc.published});
+ if(S.draft&&S.draftWeek===w&&S.dirty){const x=S.draft.slots[k]||(S.draft.slots[k]=[]);if(!x.includes(uid))x.push(uid)}}
+async function decide(u,i,st,withSub){const r=D.regs[u],a=r.abs[i],sel=$('sub_'+u+'_'+i),sub=withSub&&sel?sel.value:'';
+ if(withSub&&!sub)return alert('Hãy chọn SV thay thế trong danh sách.');
+ const abs=r.abs.map((x,j)=>j===i?{...x,status:st,...(sub?{sub}:{})}:x);
+ await run(b=>{b.update(S.db.doc('regs/'+u),{abs});if(sub)addToSlot(b,a.key,sub)})}
+async function removeSub(u,i){if(!confirm('Gỡ SV thay thế khỏi buổi này?'))return;const r=D.regs[u],a=r.abs[i];
+ const abs=r.abs.map((x,j)=>{if(j!==i)return x;const{sub,...rest}=x;return rest});
+ if(await run(b=>{b.update(S.db.doc('regs/'+u),{abs});purgeSched([a.sub],b,a.key)})&&S.draft&&S.draft.slots[a.key]){S.draft.slots[a.key]=S.draft.slots[a.key].filter(x=>x!==a.sub);if(!S.draft.slots[a.key].length)delete S.draft.slots[a.key]}}
 function monthRecs(m){const o=[];for(const doc of Object.values(D.schedule).filter(x=>x.published))for(const[k,us]of Object.entries(doc.slots||{})){const[d,s,c]=k.split('_');if(d.slice(0,7)===m)us.forEach(u=>o.push({u,k,d,s,c,ab:absOf(u,k)?.status==='approved'}))}return o}
 function monthPick(){return `<div class="row"><label>Tháng:</label><input type="month" value="${S.month}" min="2026-08" max="2027-08" onchange="S.month=this.value;draw()"></div>`}
-function payData(){const R=monthRecs(S.month),cols=[...new Set(R.map(r=>r.d+'_'+r.s))].sort(),us=[...new Set(R.map(r=>r.u))];
+function payData(){const R=monthRecs(S.month).filter(r=>!S.campus||r.c===S.campus),cols=[...new Set(R.map(r=>r.d+'_'+r.s))].sort(),us=[...new Set(R.map(r=>r.u))];
  return{R,cols,us,cell:(u,c)=>{const r=R.find(x=>x.u===u&&x.d+'_'+x.s===c);return r?(r.ab?'-':'x'):''}}}
 function payView(){const{cols,us,cell}=payData();
- return `<div class="card"><h3>Bảng chấm công tháng</h3>${monthPick()}<p class="mu">x = trực đầy đủ (1 buổi); “-” = báo vắng đã được duyệt.</p>
+ return `<div class="card"><h3>Bảng chấm công tháng</h3>${monthPick()}<div class="row"><label>Cơ sở:</label><select onchange="S.campus=this.value;draw()"><option value="">Tất cả cơ sở</option>${Object.entries(CP).map(([k,v])=>`<option value="${k}" ${S.campus===k?'selected':''}>${v}</option>`).join('')}</select></div><p class="mu">x = trực đầy đủ (1 buổi); “-” = báo vắng đã được duyệt.</p>
  <div class="sc"><table><tr><th>STT</th><th>Họ tên</th><th>MSSV</th>${cols.map(c=>{const[d,s]=c.split('_');return `<th>${d.slice(8)}/${d.slice(5,7)}<br>${SH[s]}</th>`}).join('')}<th>Tổng</th></tr>
  ${us.map((u,i)=>`<tr><td>${i+1}</td><td>${esc(nm(u))}</td><td>${esc(D.students[u]?.mssv||'')}</td>${cols.map(c=>`<td>${cell(u,c)}</td>`).join('')}<td><b>${cols.filter(c=>cell(u,c)==='x').length}</b></td></tr>`).join('')||`<tr><td colspan=4 class="em">Tháng này chưa có lịch.</td></tr>`}</table></div>
  <p><button class="p" onclick="exportPay()">Xuất Excel bảng chấm công</button></p></div>`}
 function exportPay(){const{cols,us,cell}=payData(),[y,m]=S.month.split('-');
- const aoa=[['BẢNG CHẤM CÔNG CỘNG TÁC VIÊN PHÒNG CT-CTSV THÁNG '+m+'/'+y],[],['STT','Họ tên','MSSV','Khoa',...cols.map(c=>{const[d,s]=c.split('_');return d.slice(8)+'/'+d.slice(5,7)+' '+SH[s]}),'Tổng buổi']];
+ const aoa=[['BẢNG CHẤM CÔNG CỘNG TÁC VIÊN PHÒNG CT-CTSV THÁNG '+m+'/'+y+(S.campus?' - CƠ SỞ '+CP[S.campus].toUpperCase():'')],[],['STT','Họ tên','MSSV','Khoa',...cols.map(c=>{const[d,s]=c.split('_');return d.slice(8)+'/'+d.slice(5,7)+' '+SH[s]}),'Tổng buổi']];
  us.forEach((u,i)=>{const p=D.students[u]||{};aoa.push([i+1,p.name||'',p.mssv||'',p.khoa||'',...cols.map(c=>cell(u,c)),cols.filter(c=>cell(u,c)==='x').length])});
- save('Cham_cong_CTV_'+S.month+'.xlsx',aoa,'Chấm công')}
+ save('Cham_cong_CTV_'+S.month+(S.campus?'_'+S.campus:'')+'.xlsx',aoa,'Chấm công')}
 function trkView(){const all=Object.values(D.schedule).filter(x=>x.published).flatMap(doc=>Object.entries(doc.slots||{}).flatMap(([k,us])=>us.map(u=>({u,k,d:k.split('_')[0],ok:absOf(u,k)?.status!=='approved'}))));
  const mo=all.filter(r=>r.d.slice(0,7)===S.month&&r.ok),us=[...new Set(all.map(r=>r.u))];
  const byM={};all.filter(r=>r.ok).forEach(r=>byM[r.d.slice(0,7)]=(byM[r.d.slice(0,7)]||0)+1);
@@ -237,7 +251,7 @@ window.addEventListener('unhandledrejection',ev=>showErr(ev.reason||{message:'L�
 function stuStats(u){const as=[];for(const[w,doc]of Object.entries(D.schedule))for(const[k,us]of Object.entries(doc.slots||{}))if(us.includes(u))as.push({w,k,pub:!!doc.published});
  as.sort((a,b)=>a.k.localeCompare(b.k));return{items:[...(D.regs[u]?.items||[])],abs:D.regs[u]?.abs||[],as}}
 function stuView(){const ids=[...new Set([...Object.keys(D.regs),...Object.keys(D.students)])];
- const rows=ids.map(u=>{const t=stuStats(u),p=D.students[u]||{};return `<tr><td>${esc(nm(u))}</td><td>${esc(p.mssv||'')}</td><td>${esc(p.khoa||'')}</td><td>${t.items.length}</td><td>${t.as.filter(x=>x.pub).length}</td><td>${t.as.filter(x=>!x.pub).length}</td><td>${t.abs.filter(a=>a.status==='approved').length}</td><td><button onclick="S.sel='${u}';draw()">Chi tiết</button></td></tr>`}).join('');
+ const rows=ids.map(u=>{const t=stuStats(u),p=D.students[u]||{};return `<tr><td>${esc(nm(u))}</td><td>${esc(p.mssv||'')}</td><td>${esc(p.khoa||'')}</td><td>${t.items.length}</td><td>${t.as.filter(x=>x.pub).length}</td><td>${t.as.filter(x=>!x.pub).length}</td><td>${t.abs.filter(a=>a.status==='approved').length}</td><td><button onclick="S.sel='${u}';draw();scrollTo(0,0)">Chi tiết</button></td></tr>`}).join('');
  let det='';
  if(S.sel&&ids.includes(S.sel)){const u=S.sel,t=stuStats(u);t.items.sort((a,b)=>a.date.localeCompare(b.date));
   det=`<div class="card"><h3>${esc(nm(u))} <span class="mu">${esc(D.students[u]?.mssv||'')}</span></h3>
@@ -246,8 +260,8 @@ function stuView(){const ids=[...new Set([...Object.keys(D.regs),...Object.keys(
   <h4>Phân công trong lịch tuần (${t.as.length})</h4><div class="sc"><table><tr><th>Tuần</th><th>Ngày</th><th>Buổi</th><th>Cơ sở</th><th>Trạng thái</th><th></th></tr>
   ${t.as.map(x=>{const[d,s2,c]=x.k.split('_'),a=t.abs.find(y=>y.key===x.k);return `<tr><td>${fmt(x.w)}</td><td>${dow(d)} ${fmt(d)}</td><td>${SH[s2]}</td><td>${CP[c]}</td><td>${x.pub?'<span class=ok>Đã chốt</span>':'<span class=wn>Nháp</span>'}${a?' · '+stLbl[a.status]:''}</td><td><button class="d" onclick="removeAssign('${u}','${x.k}')">Gỡ</button></td></tr>`}).join('')||'<tr><td colspan=6 class="em">Chưa được xếp.</td></tr>'}</table></div>
   <p><button class="d" onclick="wipeStudent('${u}')">Xóa toàn bộ dữ liệu lịch của SV</button> <button onclick="S.sel=null;draw()">Đóng</button></p></div>`}
- return `<div class="card"><h3>Thống kê lịch theo sinh viên</h3><div class="sc"><table><tr><th>Họ tên</th><th>MSSV</th><th>Khoa</th><th>Lượt đăng ký</th><th>Đã xếp (chốt)</th><th>Đã xếp (nháp)</th><th>Vắng đã duyệt</th><th></th></tr>${rows||'<tr><td colspan=8 class="em">Chưa có dữ liệu.</td></tr>'}</table></div>
- <p><button onclick="cleanOrphans()">Dọn dữ liệu của tài khoản không còn tồn tại</button> <span class="mu">Dùng khi bạn đã xóa tài khoản SV trực tiếp trong Firebase Console.</span></p></div>`+det}
+ return det+`<div class="card"><h3>Thống kê lịch theo sinh viên</h3><div class="sc"><table><tr><th>Họ tên</th><th>MSSV</th><th>Khoa</th><th>Lượt đăng ký</th><th>Đã xếp (chốt)</th><th>Đã xếp (nháp)</th><th>Vắng đã duyệt</th><th></th></tr>${rows||'<tr><td colspan=8 class="em">Chưa có dữ liệu.</td></tr>'}</table></div>
+ <p><button onclick="cleanOrphans()">Dọn dữ liệu của tài khoản không còn tồn tại</button> <span class="mu">Dùng khi bạn đã xóa tài khoản SV trực tiếp trong Firebase Console.</span></p></div>`}
 function dropFromDraft(uids){if(!S.draft)return;for(const k of Object.keys(S.draft.slots)){S.draft.slots[k]=S.draft.slots[k].filter(x=>!uids.includes(x));if(!S.draft.slots[k].length)delete S.draft.slots[k]}}
 function purgeSched(uids,b,only){for(const[w,doc]of Object.entries(D.schedule)){const sl=JSON.parse(JSON.stringify(doc.slots||{}));let ch=false;
  for(const k of Object.keys(sl)){if(only&&k!==only)continue;if(sl[k].some(x=>uids.includes(x))){sl[k]=sl[k].filter(x=>!uids.includes(x));ch=true;if(!sl[k].length)delete sl[k]}}
